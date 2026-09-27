@@ -1418,12 +1418,12 @@ function kirshlib:window(config)
             KeybindFrame.Parent = TabContent
 
             local KeybindCorner = Instance.new("UICorner")
-            KeyCorner.CornerRadius = UDim.new(0, 4)
-            KeyCorner.Parent = KeybindFrame
+            KeybindCorner.CornerRadius = UDim.new(0, 4)
+            KeybindCorner.Parent = KeybindFrame
 
             local KeybindStroke = Instance.new("UIStroke")
             KeybindStroke.Color = kirshlib.Theme.Border
-            KeyStroke.Parent = KeybindFrame
+            KeybindStroke.Parent = KeybindFrame
 
             local KeybindLabel = Instance.new("TextLabel")
             KeybindLabel.Size = UDim2.new(0.5, -10, 1, 0)
