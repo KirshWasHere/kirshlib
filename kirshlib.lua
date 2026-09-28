@@ -1473,6 +1473,146 @@ function kirshlib:window(config)
             end)
         end
 
+        function Tab:dropdown(text, list, default, callback)
+            local selected = default or (list and list[1]) or "None"
+            local open = false
+            local items = list or {}
+
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, 0, 0, 32)
+            Frame.BackgroundColor3 = kirshlib.Theme.TopBar
+            Frame.ClipsDescendants = true
+            Frame.Parent = TabContent
+
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0, 4)
+            Corner.Parent = Frame
+
+            local Stroke = Instance.new("UIStroke")
+            Stroke.Color = kirshlib.Theme.Border
+            Stroke.Parent = Frame
+
+            local Label = Instance.new("TextLabel")
+            Label.Size = UDim2.new(0.4, 0, 0, 32)
+            Label.Position = UDim2.new(0, 10, 0, 0)
+            Label.BackgroundTransparency = 1
+            Label.Text = text
+            Label.TextColor3 = kirshlib.Theme.Text
+            Label.Font = Enum.Font.GothamSemibold
+            Label.TextSize = 13
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.Parent = Frame
+
+            local MainButton = Instance.new("TextButton")
+            MainButton.Size = UDim2.new(0.55, -10, 0, 22)
+            MainButton.Position = UDim2.new(0.45, 0, 0, 5)
+            MainButton.BackgroundColor3 = kirshlib.Theme.Background
+            MainButton.Text = tostring(selected)
+            MainButton.TextColor3 = kirshlib.Theme.Text
+            MainButton.Font = Enum.Font.Gotham
+            MainButton.TextSize = 12
+            MainButton.Parent = Frame
+
+            local MainCorner = Instance.new("UICorner")
+            MainCorner.CornerRadius = UDim.new(0, 4)
+            MainCorner.Parent = MainButton
+
+            local MainStroke = Instance.new("UIStroke")
+            MainStroke.Color = kirshlib.Theme.Border
+            MainStroke.Parent = MainButton
+
+            local Scroll = Instance.new("ScrollingFrame")
+            Scroll.Size = UDim2.new(1, -20, 0, 100)
+            Scroll.Position = UDim2.new(0, 10, 0, 34)
+            Scroll.BackgroundColor3 = kirshlib.Theme.Background
+            Scroll.BorderSizePixel = 0
+            Scroll.ScrollBarThickness = 2
+            Scroll.Visible = false
+            Scroll.Parent = Frame
+
+            local ScrollCorner = Instance.new("UICorner")
+            ScrollCorner.CornerRadius = UDim.new(0, 4)
+            ScrollCorner.Parent = Scroll
+
+            local ScrollLayout = Instance.new("UIListLayout")
+            ScrollLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            ScrollLayout.Padding = UDim.new(0, 2)
+            ScrollLayout.Parent = Scroll
+
+            local function build()
+                for _, child in ipairs(Scroll:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child:Destroy()
+                    end
+                end
+
+                for _, name in ipairs(items) do
+                    local OptionBtn = Instance.new("TextButton")
+                    OptionBtn.Size = UDim2.new(1, 0, 0, 22)
+                    OptionBtn.BackgroundColor3 = kirshlib.Theme.TopBar
+                    OptionBtn.BackgroundTransparency = 0.5
+                    OptionBtn.Text = tostring(name)
+                    OptionBtn.TextColor3 = (name == selected) and kirshlib.Theme.Accent or kirshlib.Theme.Text
+                    OptionBtn.Font = Enum.Font.Gotham
+                    OptionBtn.TextSize = 12
+                    OptionBtn.Parent = Scroll
+
+                    local OptionCorner = Instance.new("UICorner")
+                    OptionCorner.CornerRadius = UDim.new(0, 3)
+                    OptionCorner.Parent = OptionBtn
+
+                    OptionBtn.MouseButton1Click:Connect(function()
+                        selected = name
+                        MainButton.Text = tostring(name)
+                        open = false
+                        Scroll.Visible = false
+                        TweenService:Create(Frame, TweenInfo.new(0.2), { Size = UDim2.new(1, 0, 0, 32) }):Play()
+                        build()
+                        if callback then
+                            callback(selected)
+                        end
+                    end)
+                end
+
+                local count = #items
+                local height = math.clamp(count * 24, 24, 120)
+                Scroll.Size = UDim2.new(1, -20, 0, height)
+                Scroll.CanvasSize = UDim2.new(0, 0, 0, count * 24)
+            end
+
+            build()
+
+            MainButton.MouseButton1Click:Connect(function()
+                open = not open
+                if open then
+                    build()
+                    local count = #items
+                    local height = math.clamp(count * 24, 24, 120)
+                    Scroll.Visible = true
+                    TweenService:Create(Frame, TweenInfo.new(0.2), { Size = UDim2.new(1, 0, 0, 40 + height) }):Play()
+                else
+                    Scroll.Visible = false
+                    TweenService:Create(Frame, TweenInfo.new(0.2), { Size = UDim2.new(1, 0, 0, 32) }):Play()
+                end
+            end)
+
+            local Handler = {}
+            function Handler:refresh(newItems)
+                items = newItems or {}
+                build()
+            end
+            function Handler:set(val)
+                selected = val
+                MainButton.Text = tostring(val)
+                build()
+                if callback then
+                    callback(selected)
+                end
+            end
+
+            return Handler
+        end
+
         Tab.Button = TabButton
         Tab.Content = TabContent
 
