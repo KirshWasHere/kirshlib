@@ -88,7 +88,7 @@ function Iris._generateSelectionImageObject()
 	local UIStroke = Instance.new("UIStroke")
 	UIStroke.Thickness = 1
 	UIStroke.Color = Iris._config.SelectionImageObjectBorderColor
-	UIStroke.Transparency = Iris._config.SelectionImageObjectBorderColor
+	UIStroke.Transparency = Iris._config.SelectionImageObjectBorderTransparency
 	UIStroke.LineJoinMode = Enum.LineJoinMode.Round
 	UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	UIStroke.Parent = SelectionImageObject
