@@ -600,24 +600,45 @@ function Iris.Init(parentInstance, eventConnection)
 	Iris.parentInstance = parentInstance
 	assert(not Iris._started, "Iris.Init can only be called once.")
 	Iris._started = true
+	Iris._shutdown = false
 
 	Iris._generateRootInstance()
 	Iris._generateSelectionImageObject()
-	
+
 	task.spawn(function()
 		if typeof(eventConnection) == "function" then
-			while true do
+			while not Iris._shutdown do
 				eventConnection()
 				Iris._cycle()
 			end
 		elseif eventConnection ~= nil then
-			eventConnection:Connect(function()
+			Iris._eventConnection = eventConnection:Connect(function()
+				if Iris._shutdown then return end
 				Iris._cycle()
 			end)
 		end
 	end)
 
 	return Iris
+end
+
+function Iris.Shutdown()
+	Iris._shutdown = true
+	if Iris._eventConnection then
+		Iris._eventConnection:Disconnect()
+		Iris._eventConnection = nil
+	end
+	table.clear(Iris._connectedFunctions)
+	if Iris._rootInstance then
+		Iris._rootInstance:Destroy()
+		Iris._rootInstance = nil
+	end
+	-- destroy all window ScreenGuis
+	for _, widget in next, Iris._lastVDOM do
+		pcall(function()
+			if widget.Instance then widget.Instance:Destroy() end
+		end)
+	end
 end
 
 --- @within Iris
