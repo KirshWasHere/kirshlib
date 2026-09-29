@@ -13,7 +13,18 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-u
 loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/example.lua"))()
 ```
 ## preview
-<img width="1025" height="545" alt="image" src="https://github.com/user-attachments/assets/afa29bc0-0b17-4195-a5f4-2a618c8f8c60" /> <img width="1024" height="546" alt="image" src="https://github.com/user-attachments/assets/142089b8-e750-4934-8479-920bc7197c10" />
+## preview
+<img width="1022" height="541" alt="image" src="https://github.com/user-attachments/assets/c4cc6641-9918-4b6e-adb8-bb63c56ec292" /> 
+<img width="1023" height="546" alt="image" src="https://github.com/user-attachments/assets/46ae89f8-b7f6-41a3-9e44-b06810bbaa8f" />
+clear size <img width="1402" height="742" alt="image" src="https://github.com/user-attachments/assets/68d1057d-553c-4544-9241-7c40be0f07fd" />
+
+<details>
+  <summary>flashbang police</summary>
+  <img width="1021" height="542" alt="image" src="https://github.com/user-attachments/assets/3e491c3a-cf4f-4899-9e77-fca1602dd549" />
+</details>
+
+
+
 
 
 ### The render loop
