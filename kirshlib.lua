@@ -1581,6 +1581,11 @@ __bundle_register("Internal", function(require, _LOADED, __bundle_register, __bu
 	                parentInstance = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 	            end)
 	        end
+	        -- kirshlib (executor port): persist the resolved parent so
+	        -- Internal._cycle()'s compatibility check and any code reading
+	        -- Internal.parentInstance (e.g. the demo style window) see the
+	        -- actual container instead of nil when Init() got no argument.
+	        Internal.parentInstance = parentInstance
 	        Internal._rootInstance.Parent = parentInstance
 	        Internal._rootWidget.Instance = Internal._rootInstance
 	    end
