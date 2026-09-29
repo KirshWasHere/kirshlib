@@ -3824,6 +3824,7 @@ return function(Iris, widgets)
             end
         end,
         UpdateState = function(thisWidget)
+            if not thisWidget.Instance or not thisWidget.Instance:FindFirstChild("InputFieldR") then return end
             local InputFieldR = thisWidget.Instance.InputFieldR
             local InputFieldG = thisWidget.Instance.InputFieldG
             local InputFieldB = thisWidget.Instance.InputFieldB
@@ -3833,7 +3834,7 @@ return function(Iris, widgets)
             local PrefixTable = {"R: ", "G: ", "B: ", "A: ", "H: ", "S: ", "V: ", "A: "}
             local HSVOffset =  thisWidget.arguments.UseHSV and 4 or 0
             local R, G, B
-            local A = thisWidget.state.transparency.value
+            local A = thisWidget.state.transparency and thisWidget.state.transparency.value or 0
             if thisWidget.arguments.UseHSV then
                 R, G, B = thisWidget.state.color.value:ToHSV()
             else
