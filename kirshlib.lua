@@ -1866,6 +1866,15 @@ return function(Iris)
                         thisWidget.isHoveredEvent = false
                         return false
                     end
+                    -- walk parent chain: if any ancestor GuiObject is invisible, widget is hidden (e.g. inside collapsed header)
+                    local visCheck = guiObj
+                    while visCheck and visCheck:IsA("GuiObject") do
+                        if not visCheck.Visible then
+                            thisWidget.isHoveredEvent = false
+                            return false
+                        end
+                        visCheck = visCheck.Parent
+                    end
                     -- live mouse bounds check overrides sticky event state
                     local mouse = widgets.UserInputService:GetMouseLocation() - thisWidget._hoverInset
                     local pos = guiObj.AbsolutePosition
