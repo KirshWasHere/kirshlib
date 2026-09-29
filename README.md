@@ -5,12 +5,12 @@ Upstream: [SirMallard/Iris](https://github.com/SirMallard/Iris) — all credit t
 
 ## Loadstring
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/kirshlib.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/kirshlib/refs/heads/main/kirshlib.lua"))()
 ```
 ## Example/demo Loadstring
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/example.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/kirshlib/refs/heads/main/example.lua"))()
 ```
 ## preview
 <img width="1022" height="541" alt="image" src="https://github.com/user-attachments/assets/c4cc6641-9918-4b6e-adb8-bb63c56ec292" /> 
