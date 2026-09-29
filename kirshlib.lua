@@ -1,4 +1,4 @@
-﻿local __bundle_require, __bundle_loaded, __bundle_register, __bundle_modules = (function(superRequire)
+local __bundle_require, __bundle_loaded, __bundle_register, __bundle_modules = (function(superRequire)
 	local loadingPlaceholder = {[{}] = true}
 
 	local register
