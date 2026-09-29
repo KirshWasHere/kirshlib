@@ -19,7 +19,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-u
 clear size <img width="1402" height="742" alt="image" src="https://github.com/user-attachments/assets/68d1057d-553c-4544-9241-7c40be0f07fd" />
 
 <details>
-  <summary>flashbang police</summary>
+  <summary>white mode, flashbang warning</summary>
   <img width="1021" height="542" alt="image" src="https://github.com/user-attachments/assets/3e491c3a-cf4f-4899-9e77-fca1602dd549" />
 </details>
 
