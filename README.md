@@ -13,7 +13,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-u
 loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/example.lua"))()
 ```
 ## preview
-## preview
 <img width="1022" height="541" alt="image" src="https://github.com/user-attachments/assets/c4cc6641-9918-4b6e-adb8-bb63c56ec292" /> 
 <img width="1023" height="546" alt="image" src="https://github.com/user-attachments/assets/46ae89f8-b7f6-41a3-9e44-b06810bbaa8f" />
 clear size <img width="1402" height="742" alt="image" src="https://github.com/user-attachments/assets/68d1057d-553c-4544-9241-7c40be0f07fd" />
