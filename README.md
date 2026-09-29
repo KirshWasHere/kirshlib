@@ -13,6 +13,8 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-u
 loadstring(game:HttpGet("https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/example.lua"))()
 ```
 ## preview
+<img width="1025" height="545" alt="image" src="https://github.com/user-attachments/assets/afa29bc0-0b17-4195-a5f4-2a618c8f8c60" /> <img width="1024" height="546" alt="image" src="https://github.com/user-attachments/assets/142089b8-e750-4934-8479-920bc7197c10" />
+
 
 ### The render loop
 
