@@ -1,9 +1,9 @@
-local KIRSHLIB_URL = "https://raw.githubusercontent.com/KirshWasHere/roblox-ui-lib/refs/heads/main/kirshlib.lua"
+local KIRSHLIB_URL = "https://raw.githubusercontent.com/KirshWasHere/kirshlib/refs/heads/main/kirshlib.lua"
 
 local ok, Iris = pcall(function()
     return loadstring(game:HttpGet(KIRSHLIB_URL))()
 end)
-assert(ok and type(Iris) == "table", "[kirshlib demo] failed to load kirshlib.lua: " .. tostring(Iris))
+assert(ok and type(Iris) == "table", "[kirshlib example] failed to load kirshlib.lua: " .. tostring(Iris))
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -13,7 +13,7 @@ local function addLog(message)
     if #logLines > 24 then
         table.remove(logLines)
     end
-    print("[kirshlib demo] " .. message)
+    print("[kirshlib example] " .. message)
 end
 
 local resolvedImages = {}
@@ -43,11 +43,11 @@ local function resolveImageId(id)
     end
 
     resolvedImages[id] = resolved
-    print(("[kirshlib demo] asset %s -> %s"):format(id, resolved))
+    print(("[kirshlib example] asset %s -> %s"):format(id, resolved))
     return resolved
 end
 
-local DEMO_IMAGE = resolveImageId(29347007)
+local example_IMAGE = resolveImageId(29347007)
 
 local customFrame
 local function buildCustomFrame()
@@ -67,8 +67,8 @@ local function buildCustomFrame()
 end
 buildCustomFrame()
 
-local demoVariable = 10
-local demoTable = { volume = 50 }
+local exampleVariable = 10
+local exampleTable = { volume = 50 }
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then
@@ -76,7 +76,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
     if input.KeyCode == Enum.KeyCode.P then
         Iris.Disabled = not Iris.Disabled
-        print("[kirshlib demo] Iris.Disabled =", Iris.Disabled)
+        print("[kirshlib example] Iris.Disabled =", Iris.Disabled)
     end
 end)
 
@@ -84,7 +84,7 @@ local plotBuffer = table.create(64, 0)
 local shutdownRequested = false
 
 Iris.Init()
-print(("[kirshlib demo] loaded kirshlib v%s (Iris 2.5.1 port)"):format(tostring(Iris.Internal._version)))
+print(("[kirshlib example] loaded kirshlib v%s (Iris 2.5.1 port)"):format(tostring(Iris.Internal._version)))
 
 local lastTime = os.clock()
 local smoothedFps = 60
@@ -136,7 +136,7 @@ Iris:Connect(function()
     end
     Iris.End()
 
-    local mainWindow = Iris.Window({ "kirshlib Demo" }, {
+    local mainWindow = Iris.Window({ "kirshlib example" }, {
         size = Iris.State(Vector2.new(700, 540)),
         position = Iris.State(Vector2.new(8, 8)),
     })
@@ -211,7 +211,7 @@ Iris:Connect(function()
                     Iris.Tooltip({ "Button events: clicked / rightClicked / doubleClicked / ctrlClicked" })
                 end
                 Iris.SmallButton({ "SmallButton" })
-                local imageButton = Iris.ImageButton({ DEMO_IMAGE, UDim2.fromOffset(32, 32) })
+                local imageButton = Iris.ImageButton({ example_IMAGE, UDim2.fromOffset(32, 32) })
                 if imageButton.hovered() then
                     Iris.Tooltip({ "ImageButton, same events as Button" })
                 end
@@ -277,7 +277,7 @@ Iris:Connect(function()
             Iris.End()
 
             Iris.SeparatorText({ "Image (asset 29347007)" })
-            Iris.Image({ DEMO_IMAGE, UDim2.fromOffset(96, 96) })
+            Iris.Image({ example_IMAGE, UDim2.fromOffset(96, 96) })
         Iris.End()
 
         Iris.Tab({ "Inputs" })
@@ -389,21 +389,21 @@ Iris:Connect(function()
 
         Iris.Tab({ "State & API" })
             Iris.SeparatorText({ "State helpers" })
-            local variableState = Iris.VariableState(demoVariable, function(newValue)
-                demoVariable = newValue
+            local variableState = Iris.VariableState(exampleVariable, function(newValue)
+                exampleVariable = newValue
             end)
             Iris.DragNum({ "VariableState <-> local variable (0-100)", 1, 0, 100 }, { number = variableState })
-            Iris.Text({ ("demoVariable = %s (widget edits it, external edits sync back)"):format(tostring(demoVariable)) })
-            if Iris.SmallButton({ "randomize demoVariable externally" }).clicked() then
-                demoVariable = math.random(0, 100)
-                addLog(("demoVariable set externally to %d"):format(demoVariable))
+            Iris.Text({ ("exampleVariable = %s (widget edits it, external edits sync back)"):format(tostring(exampleVariable)) })
+            if Iris.SmallButton({ "randomize exampleVariable externally" }).clicked() then
+                exampleVariable = math.random(0, 100)
+                addLog(("exampleVariable set externally to %d"):format(exampleVariable))
             end
 
             Iris.SliderNum(
-                { 'TableState(demoTable, "volume")', 1, 0, 100 },
-                { number = Iris.TableState(demoTable, "volume") }
+                { 'TableState(exampleTable, "volume")', 1, 0, 100 },
+                { number = Iris.TableState(exampleTable, "volume") }
             )
-            Iris.Text({ ("demoTable.volume = %s"):format(tostring(demoTable.volume)) })
+            Iris.Text({ ("exampleTable.volume = %s"):format(tostring(exampleTable.volume)) })
 
             local baseState = Iris.State(false)
             local computedState = Iris.ComputedState(baseState, function(value)
@@ -431,19 +431,19 @@ Iris:Connect(function()
             Iris.Text({ "normal text after PopConfig" })
 
             Iris.SeparatorText({ "IDs" })
-            Iris.PushId("demo_pushed_id")
+            Iris.PushId("example_pushed_id")
                 Iris.Text({ "widget inside PushId / PopId (shared id prefix)" })
             Iris.PopId()
 
             Iris.SeparatorText({ "SetNextWidgetID" })
-            Iris.SetNextWidgetID("kirsh_demo_shared_window")
+            Iris.SetNextWidgetID("kirsh_example_shared_window")
             Iris.Window({ "Shared-ID Window" }, {
                 size = Iris.State(Vector2.new(360, 180)),
                 [Iris.Args.Window.NoCollapse] = true,
             })
                 Iris.Text({ "This window is called TWICE per frame under the same id..." })
             Iris.End()
-            Iris.SetNextWidgetID("kirsh_demo_shared_window")
+            Iris.SetNextWidgetID("kirsh_example_shared_window")
             Iris.Window()
                 Iris.Text({ "...so this text lands in the SAME window (click X to close both)." })
             Iris.End()
@@ -481,10 +481,10 @@ Iris:Connect(function()
             Iris.Checkbox({ "Iris.Disabled (UI freeze - press P to unfreeze)" }, {
                 isChecked = Iris.TableState(Iris, "Disabled"),
             })
-            local showBuiltinDemo = Iris.State(false)
-            Iris.Checkbox({ "Show built-in Iris.ShowDemoWindow()" }, { isChecked = showBuiltinDemo })
-            if showBuiltinDemo.value then
-                Iris.ShowDemoWindow()
+            local showBuiltinexample = Iris.State(false)
+            Iris.Checkbox({ "Show built-in Iris.ShowexampleWindow()" }, { isChecked = showBuiltinexample })
+            if showBuiltinexample.value then
+                Iris.ShowexampleWindow()
             end
         Iris.End()
 
@@ -513,7 +513,7 @@ Iris:Connect(function()
     Iris.End()
 
     if shutdownRequested then
-        print("[kirshlib demo] Iris.Shutdown() called - bye!")
+        print("[kirshlib example] Iris.Shutdown() called - bye!")
         addLog("Shutdown")
         Iris.Shutdown()
     end
