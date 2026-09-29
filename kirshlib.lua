@@ -31,7 +31,7 @@ local __bundle_require, __bundle_loaded, __bundle_register, __bundle_modules = (
 			end
 
 			loaded[name] = loadingPlaceholder
-			loadedModule = modules[name](require, loaded, register, modules)
+			loadedModule = modules[name](<require, loaded, register, modules>)
 			loaded[name] = loadedModule
 		end
 
@@ -598,6 +598,12 @@ function Iris.Init(parentInstance, eventConnection)
 		eventConnection = game:GetService("RunService").Heartbeat
 	end
 	Iris.parentInstance = parentInstance
+	-- BRUTE FORCE ZOMBIE CLEANUP:
+	for _, v in ipairs(Iris.parentInstance:GetChildren()) do
+		if v.Name == "Iris_Root" or v.Name == "Iris_Window" or v.Name:find("Iris") then
+			pcall(function() v:Destroy() end)
+		end
+	end
 	assert(not Iris._started, "Iris.Init can only be called once.")
 	Iris._started = true
 	Iris._shutdown = false
@@ -1897,7 +1903,7 @@ return function(Iris)
                         visCheck = visCheck.Parent
                     end
                     -- live mouse bounds check overrides sticky event state
-                    local mouse = widgets.UserInputService:GetMouseLocation() - thisWidget._hoverInset
+                    local mouse = widgets.UserInputService:GetMouseLocation() -- AbsolutePosition matches GetMouseLocation exactly
                     local pos = guiObj.AbsolutePosition
                     local size = guiObj.AbsoluteSize
                     local over = mouse.X >= pos.X and mouse.X <= pos.X + size.X
@@ -7740,3 +7746,4 @@ local TemplateConfig = {
 return TemplateConfig
 end)
 return __bundle_require("__root")
+
