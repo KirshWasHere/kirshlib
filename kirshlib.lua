@@ -1842,29 +1842,37 @@ return function(Iris)
         hover = function(pathToHovered)
             return {
                 ["Init"] = function(thisWidget)
-                    local hoveredGuiObject = pathToHovered(thisWidget)
-                    hoveredGuiObject.MouseEnter:Connect(function()
+                    local guiObj = pathToHovered(thisWidget)
+                    thisWidget._hoveredGuiObject = guiObj
+                    thisWidget.isHoveredEvent = false
+                    -- cache inset correction once
+                    local sg = guiObj:FindFirstAncestorOfClass("ScreenGui")
+                    if sg and not sg.IgnoreGuiInset then
+                        local ok, v = pcall(function() return game:GetService("GuiService"):GetGuiInset() end)
+                        thisWidget._hoverInset = ok and v or Vector2.zero
+                    else
+                        thisWidget._hoverInset = Vector2.zero
+                    end
+                    guiObj.MouseEnter:Connect(function()
                         thisWidget.isHoveredEvent = true
                     end)
-                    hoveredGuiObject.MouseLeave:Connect(function()
+                    guiObj.MouseLeave:Connect(function()
                         thisWidget.isHoveredEvent = false
                     end)
-                    thisWidget.isHoveredEvent = false
-                    thisWidget._hoveredGuiObject = hoveredGuiObject
                 end,
                 ["Get"] = function(thisWidget)
-                    if not thisWidget.isHoveredEvent then return false end
                     local guiObj = thisWidget._hoveredGuiObject
                     if not guiObj or not guiObj.Parent then
                         thisWidget.isHoveredEvent = false
                         return false
                     end
-                    local inset = game:GetService("GuiService"):GetGuiInset()
-                    local mouse = widgets.UserInputService:GetMouseLocation() - inset
+                    -- live mouse bounds check overrides sticky event state
+                    local mouse = widgets.UserInputService:GetMouseLocation() - thisWidget._hoverInset
                     local pos = guiObj.AbsolutePosition
                     local size = guiObj.AbsoluteSize
-                    local over = mouse.X >= pos.X and mouse.X <= pos.X + size.X and mouse.Y >= pos.Y and mouse.Y <= pos.Y + size.Y
-                    if not over then thisWidget.isHoveredEvent = false end
+                    local over = mouse.X >= pos.X and mouse.X <= pos.X + size.X
+                        and mouse.Y >= pos.Y and mouse.Y <= pos.Y + size.Y
+                    thisWidget.isHoveredEvent = over
                     return over
                 end
             }
