@@ -11776,7 +11776,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 
 	                    local TitleBar = Instance.new("Frame")
 	                    TitleBar.Size = UDim2.new(1, 0, 0, 22)
-	                    TitleBar.BackgroundColor3 = Iris._config.TitleBgColor
+	                    TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
 	                    TitleBar.BorderSizePixel = 0
 	                    TitleBar.ZIndex = 101
 	                    TitleBar.Parent = Popup
@@ -11842,13 +11842,29 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    BlackGrad.Parent = SVMap
 
 	                    local SVCursor = Instance.new("Frame")
-	                    SVCursor.Size = UDim2.fromOffset(8, 8)
+	                    SVCursor.Size = UDim2.fromOffset(6, 6)
 	                    SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
-	                    SVCursor.BackgroundColor3 = Color3.new(1, 1, 1)
+	                    SVCursor.BackgroundTransparency = 1
 	                    SVCursor.ZIndex = 102
 	                    local UICorner = Instance.new("UICorner", SVCursor)
 	                    UICorner.CornerRadius = UDim.new(1, 0)
-	                    widgets.UIStroke(SVCursor, 1, Color3.new(0,0,0), 0)
+	                    local StrokeW = Instance.new("UIStroke", SVCursor)
+	                    StrokeW.Thickness = 2
+	                    StrokeW.Color = Color3.new(1, 1, 1)
+
+	                    local SVCursorBlack = Instance.new("Frame")
+	                    SVCursorBlack.Size = UDim2.fromOffset(10, 10)
+	                    SVCursorBlack.Position = UDim2.fromScale(0.5, 0.5)
+	                    SVCursorBlack.AnchorPoint = Vector2.new(0.5, 0.5)
+	                    SVCursorBlack.BackgroundTransparency = 1
+	                    SVCursorBlack.ZIndex = 102
+	                    local UICornerB = Instance.new("UICorner", SVCursorBlack)
+	                    UICornerB.CornerRadius = UDim.new(1, 0)
+	                    local StrokeB = Instance.new("UIStroke", SVCursorBlack)
+	                    StrokeB.Thickness = 1
+	                    StrokeB.Color = Color3.new(0, 0, 0)
+	                    SVCursorBlack.Parent = SVCursor
+
 	                    SVCursor.Parent = SVMap
 
 	                    local HueBar = Instance.new("TextButton")
@@ -11874,13 +11890,39 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    })
 
 	                    local HueCursor = Instance.new("Frame")
-	                    HueCursor.Size = UDim2.new(1, 4, 0, 4)
+	                    HueCursor.Size = UDim2.new(1, 4, 0, 8)
 	                    HueCursor.Position = UDim2.new(0, -2, 0, 0)
 	                    HueCursor.AnchorPoint = Vector2.new(0, 0.5)
-	                    HueCursor.BackgroundColor3 = Color3.new(1, 1, 1)
+	                    HueCursor.BackgroundTransparency = 1
 	                    HueCursor.ZIndex = 102
-	                    widgets.UIStroke(HueCursor, 1, Color3.new(0,0,0), 0)
 	                    HueCursor.Parent = HueBar
+
+	                    local function makeTriangleWithShadow(parent, rot, pos, anchor)
+	                        local shadow = Instance.new("ImageLabel")
+	                        shadow.Size = UDim2.fromOffset(8, 8)
+	                        shadow.Position = pos + UDim2.fromOffset(1, 1)
+	                        shadow.AnchorPoint = anchor
+	                        shadow.BackgroundTransparency = 1
+	                        shadow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+	                        shadow.ImageColor3 = Color3.new(0, 0, 0)
+	                        shadow.Rotation = rot
+	                        shadow.ZIndex = 102
+	                        shadow.Parent = parent
+
+	                        local img = Instance.new("ImageLabel")
+	                        img.Size = UDim2.fromOffset(8, 8)
+	                        img.Position = pos
+	                        img.AnchorPoint = anchor
+	                        img.BackgroundTransparency = 1
+	                        img.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
+	                        img.ImageColor3 = Color3.new(1, 1, 1)
+	                        img.Rotation = rot
+	                        img.ZIndex = 103
+	                        img.Parent = parent
+	                    end
+
+	                    makeTriangleWithShadow(HueCursor, 0, UDim2.new(0, 2, 0.5, 0), Vector2.new(1, 0.5))
+	                    makeTriangleWithShadow(HueCursor, 180, UDim2.new(1, -2, 0.5, 0), Vector2.new(0, 0.5))
 	                    
 	                    local InputsContainer = Instance.new("Frame")
 	                    InputsContainer.Size = UDim2.new(1, -8, 0, 80)
