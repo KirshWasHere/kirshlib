@@ -12251,13 +12251,26 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    if input.UpdateState then input.UpdateState(thisWidget) end
 	                    
 	                    if thisWidget.state.isPickerOpen and thisWidget.state.isPickerOpen.value then
-	                        if not thisWidget.popupFrame.Visible then
+	                        -- Check visibility of parent hierarchy
+	                        local isVisible = true
+	                        local current = thisWidget.Instance
+	                        while current and current:IsA("GuiObject") do
+	                            if not current.Visible then isVisible = false break end
+	                            current = current.Parent
+	                        end
+	                        local screenGui = thisWidget.Instance:FindFirstAncestorOfClass("ScreenGui")
+	                        if screenGui and not screenGui.Enabled then isVisible = false end
+
+	                        if not thisWidget.popupFrame.Visible and isVisible then
 	                            thisWidget.popupFrame.Visible = true
 	                            thisWidget.modalBg.Visible = true
 	                            local cb = thisWidget.Instance:FindFirstChild("ColorBox")
 	                            if cb then
 	                                thisWidget.popupFrame.Position = UDim2.fromOffset(cb.AbsolutePosition.X, cb.AbsolutePosition.Y + cb.AbsoluteSize.Y + 2)
 	                            end
+	                        elseif not isVisible then
+	                            thisWidget.popupFrame.Visible = false
+	                            thisWidget.modalBg.Visible = false
 	                        end
 	                        thisWidget.titleText.Text = thisWidget.arguments.Text or "Color picker"
 	                        
@@ -12304,6 +12317,11 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        local h, _, _ = thisWidget.state.color.value:ToHSV()
 	                        thisWidget.state.hue = Iris._widgetState(thisWidget, "hue", h)
 	                    end
+	                end,
+	                Discard = function(thisWidget: Types.InputColor4)
+	                    if thisWidget.popupFrame then thisWidget.popupFrame:Destroy() end
+	                    if thisWidget.modalBg then thisWidget.modalBg:Destroy() end
+	                    if input.Discard then input.Discard(thisWidget) else thisWidget.Instance:Destroy() widgets.discardState(thisWidget) end
 	                end,
 	            })
 	        end
