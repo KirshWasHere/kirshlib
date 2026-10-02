@@ -11840,7 +11840,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        label.Text = name .. ":"
 	                        label.TextColor3 = Iris._config.TextColor
 	                        label.TextSize = Iris._config.TextSize
-	                        label.Font = Iris._config.TextFont.Family
+	                        label.FontFace = Iris._config.TextFont
 	                        label.Parent = frame
 
 	                        local box = Instance.new("TextBox")
@@ -11850,7 +11850,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        box.TextColor3 = Iris._config.TextColor
 	                        box.TextXAlignment = Enum.TextXAlignment.Left
 	                        box.TextSize = Iris._config.TextSize
-	                        box.Font = Iris._config.TextFont.Family
+	                        box.FontFace = Iris._config.TextFont
 	                        box.ClearTextOnFocus = false
 	                        box.Parent = frame
 
