@@ -10097,7 +10097,7 @@ __bundle_register("widgets/Button", function(require, _LOADED, __bundle_register
 	            else
 	                activeHotkeyWidget.state.key:set(input.KeyCode)
 	            end
-	            activeHotkeyWidget.lastChangeTick = Iris._cycleTick
+	            activeHotkeyWidget.lastChangedTick = Iris._cycleTick
 	            activeHotkeyWidget = nil
 	        end
 	    end)
@@ -10109,9 +10109,14 @@ __bundle_register("widgets/Button", function(require, _LOADED, __bundle_register
 	            ["Text"] = 1,
 	        },
 	        Events = {
-	            ["changed"] = widgets.EVENTS.change(function(thisWidget)
-	                return thisWidget.state.key.value
-	            end),
+	            ["changed"] = {
+	                ["Init"] = function(thisWidget)
+	                    thisWidget.lastChangedTick = 0
+	                end,
+	                ["Get"] = function(thisWidget)
+	                    return thisWidget.lastChangedTick == Iris._cycleTick
+	                end,
+	            },
 	        },
 	        GenerateState = function(thisWidget)
 	            if thisWidget.state.key == nil then
