@@ -10091,14 +10091,20 @@ __bundle_register("widgets/Button", function(require, _LOADED, __bundle_register
 
 	    local activeHotkeyWidget = nil
 	    game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
-	        if activeHotkeyWidget and input.UserInputType == Enum.UserInputType.Keyboard then
-	            if input.KeyCode == Enum.KeyCode.Escape then
-	                activeHotkeyWidget.state.key:set(Enum.KeyCode.Unknown)
-	            else
-	                activeHotkeyWidget.state.key:set(input.KeyCode)
+	        if activeHotkeyWidget then
+	            if input.UserInputType == Enum.UserInputType.Keyboard then
+	                if input.KeyCode == Enum.KeyCode.Escape then
+	                    activeHotkeyWidget.state.key:set(Enum.KeyCode.Unknown)
+	                else
+	                    activeHotkeyWidget.state.key:set(input.KeyCode)
+	                end
+	                activeHotkeyWidget.lastChangedTick = Iris._cycleTick
+	                activeHotkeyWidget = nil
+	            elseif input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.MouseButton2 or input.UserInputType == Enum.UserInputType.MouseButton3 then
+	                activeHotkeyWidget.state.key:set(input.UserInputType)
+	                activeHotkeyWidget.lastChangedTick = Iris._cycleTick
+	                activeHotkeyWidget = nil
 	            end
-	            activeHotkeyWidget.lastChangedTick = Iris._cycleTick
-	            activeHotkeyWidget = nil
 	        end
 	    end)
 
