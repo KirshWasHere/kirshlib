@@ -8225,7 +8225,9 @@ __bundle_register("widgets/Window", function(require, _LOADED, __bundle_register
 	            ["NoScrollbar"] = 7,
 	            ["NoResize"] = 8,
 	            ["NoNav"] = 9,
+	            ["NoNav"] = 9,
 	            ["NoMenu"] = 10,
+	            ["AlwaysOnTop"] = 11,
 	        },
 	        Events = {
 	            ["closed"] = {
@@ -8268,7 +8270,7 @@ __bundle_register("widgets/Window", function(require, _LOADED, __bundle_register
 	                Window = Instance.new("ScreenGui")
 	                Window.ResetOnSpawn = false
 	                Window.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	                Window.DisplayOrder = Iris._config.DisplayOrderOffset
+	                Window.DisplayOrder = thisWidget.arguments.AlwaysOnTop and 9999 or Iris._config.DisplayOrderOffset
 	                Window.ScreenInsets = Iris._config.ScreenInsets
 	                Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
 	            else
@@ -8277,7 +8279,7 @@ __bundle_register("widgets/Window", function(require, _LOADED, __bundle_register
 	                Window.Position = UDim2.fromScale(0.5, 0.5)
 	                Window.Size = UDim2.fromScale(1, 1)
 	                Window.BackgroundTransparency = 1
-	                Window.ZIndex = Iris._config.DisplayOrderOffset
+	                Window.ZIndex = thisWidget.arguments.AlwaysOnTop and 9999 or Iris._config.DisplayOrderOffset
 	            end
 	            Window.Name = "Iris_Window"
 
@@ -11832,499 +11834,61 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	            })
 	        end
 
-	        function generateColorDragScalar(dataType: InputDataTypes, ...: any)
-	            local defaultValues = { ... }
-	            local input = generateDragScalar(dataType, dataType == "Color4" and 4 or 3, defaultValues[1])
+	                function generateColorDragScalar(dataType: InputDataTypes, ...: any)
+            local defaultValues = { ... }
+            local input = generateDragScalar(dataType, dataType == "Color4" and 4 or 3, defaultValues[1])
 
-	            return widgets.extend(input, {
-	                Args = {
-	                    ["Text"] = 1,
-	                    ["UseFloats"] = 2,
-	                    ["UseHSV"] = 3,
-	                    ["Format"] = 4,
-	                },
-	                Generate = function(thisWidget: Types.InputColor4)
-	                    local Drag = input.Generate(thisWidget)
-	                    
-	                    for i = 1, 4 do
-	                        local field = Drag:FindFirstChild("SliderField" .. i) or Drag:FindFirstChild("DragField" .. i)
-	                        if field then field.Visible = false end
-	                    end
+            return widgets.extend(input, {
+                Args = {
+                    ["Text"] = 1,
+                    ["UseFloats"] = 2,
+                    ["UseHSV"] = 3,
+                    ["Format"] = 4,
+                },
+                Update = function(thisWidget: Types.InputColor4)
+                    local Input = thisWidget.Instance :: GuiObject
+                    local TextLabel: TextLabel = Input.TextLabel
+                    TextLabel.Text = thisWidget.arguments.Text or "Drag {dataType}"
 
-	                    local ColorBox = Drag:FindFirstChild("ColorBox")
-	                    if ColorBox then
-	                        widgets.applyButtonClick(ColorBox, function()
-	                            thisWidget.state.isPickerOpen:set(not thisWidget.state.isPickerOpen.value)
-	                        end)
-	                    end
+                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
+                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
+                    elseif not thisWidget.arguments.Format then
+                        if thisWidget.arguments.UseFloats then
+                            thisWidget.arguments.Format = { "%.3f" }
+                        else
+                            thisWidget.arguments.Format = { "%d" }
+                        end
 
-	                    local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui")
+                        thisWidget.arguments.Prefix = defaultPrefx[dataType .. if thisWidget.arguments.UseHSV then "_HSV" else "_RGB"]
+                    end
 
-	                    local ModalBg = Instance.new("TextButton")
-	                    ModalBg.Name = "ColorPickerModalBg"
-	                    ModalBg.Size = UDim2.fromScale(1, 1)
-	                    ModalBg.BackgroundTransparency = 1
-	                    ModalBg.ZIndex = 99
-	                    ModalBg.Text = ""
-	                    ModalBg.Visible = false
-	                    ModalBg.Parent = RootPopupScreenGui
+                    thisWidget.arguments.Min = { 0, 0, 0, 0 }
+                    thisWidget.arguments.Max = { 1, 1, 1, 1 }
+                    thisWidget.arguments.Increment = { 0.001, 0.001, 0.001, 0.001 }
 
-	                    ModalBg.MouseButton1Down:Connect(function()
-	                        thisWidget.state.isPickerOpen:set(false)
-	                    end)
-
-	                    local Popup = Instance.new("Frame")
-	                    Popup.Name = "ColorPickerPopup"
-	                    Popup.Size = UDim2.fromOffset(240, 320)
-	                    Popup.BackgroundColor3 = Iris._config.WindowBgColor
-	                    Popup.BackgroundTransparency = Iris._config.WindowBgTransparency
-	                    Popup.BorderSizePixel = 0
-	                    Popup.Visible = false
-	                    Popup.ZIndex = 100
-	                    Popup.Active = true
-	                    widgets.UIStroke(Popup, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
-	                    Popup.Parent = RootPopupScreenGui
-
-	                    local TitleBar = Instance.new("Frame")
-	                    TitleBar.Size = UDim2.new(1, 0, 0, 22)
-	                    TitleBar.BackgroundColor3 = Iris._config.TitleBgActiveColor
-	                    TitleBar.BorderSizePixel = 0
-	                    TitleBar.ZIndex = 101
-	                    TitleBar.Parent = Popup
-
-	                    local Arrow = Instance.new("ImageLabel")
-	                    Arrow.Size = UDim2.fromOffset(12, 12)
-	                    Arrow.Position = UDim2.new(0, 4, 0.5, -6)
-	                    Arrow.BackgroundTransparency = 1
-	                    Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
-	                    Arrow.ImageColor3 = Iris._config.TextColor
-	                    Arrow.ZIndex = 102
-	                    Arrow.Parent = TitleBar
-
-	                    local Title = Instance.new("TextLabel")
-	                    Title.Size = UDim2.new(1, -20, 1, 0)
-	                    Title.Position = UDim2.fromOffset(20, 0)
-	                    Title.BackgroundTransparency = 1
-	                    Title.Text = ""
-	                    Title.TextColor3 = Iris._config.TextColor
-	                    Title.TextSize = Iris._config.TextSize
-	                    Title.FontFace = Iris._config.TextFont
-	                    Title.TextXAlignment = Enum.TextXAlignment.Left
-	                    Title.ZIndex = 102
-	                    Title.Parent = TitleBar
-
-	                    local ResizeGrip = Instance.new("ImageButton")
-	                    ResizeGrip.Size = UDim2.fromOffset(10, 10)
-	                    ResizeGrip.AnchorPoint = Vector2.new(1, 1)
-	                    ResizeGrip.Position = UDim2.fromScale(1, 1)
-	                    ResizeGrip.BackgroundTransparency = 1
-	                    ResizeGrip.Image = "rbxassetid://12480608670"
-	                    ResizeGrip.ImageColor3 = Iris._config.TextColor
-	                    ResizeGrip.ZIndex = 102
-	                    ResizeGrip.Parent = Popup
-
-	                    local SVMap = Instance.new("TextButton")
-	                    SVMap.Name = "SVMap"
-	                    SVMap.Size = UDim2.new(1, -26, 1, -120)
-	                    SVMap.Position = UDim2.fromOffset(4, 26)
-	                    SVMap.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-	                    SVMap.AutoButtonColor = false
-	                    SVMap.Text = ""
-	                    SVMap.ZIndex = 101
-	                    SVMap.Parent = Popup
-
-	                    local WhiteGrad = Instance.new("Frame")
-	                    WhiteGrad.Size = UDim2.fromScale(1, 1)
-	                    WhiteGrad.BackgroundColor3 = Color3.new(1, 1, 1)
-	                    WhiteGrad.BorderSizePixel = 0
-	                    WhiteGrad.ZIndex = 101
-	                    local UIGradW = Instance.new("UIGradient", WhiteGrad)
-	                    UIGradW.Transparency = NumberSequence.new(0, 1)
-	                    WhiteGrad.Parent = SVMap
-
-	                    local BlackGrad = Instance.new("Frame")
-	                    BlackGrad.Size = UDim2.fromScale(1, 1)
-	                    BlackGrad.BackgroundColor3 = Color3.new(0, 0, 0)
-	                    BlackGrad.BorderSizePixel = 0
-	                    BlackGrad.ZIndex = 101
-	                    local UIGradB = Instance.new("UIGradient", BlackGrad)
-	                    UIGradB.Transparency = NumberSequence.new(1, 0)
-	                    UIGradB.Rotation = 90
-	                    BlackGrad.Parent = SVMap
-
-	                    local SVCursor = Instance.new("Frame")
-	                    SVCursor.Size = UDim2.fromOffset(6, 6)
-	                    SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
-	                    SVCursor.BackgroundTransparency = 1
-	                    SVCursor.ZIndex = 102
-	                    local UICorner = Instance.new("UICorner", SVCursor)
-	                    UICorner.CornerRadius = UDim.new(1, 0)
-	                    local StrokeW = Instance.new("UIStroke", SVCursor)
-	                    StrokeW.Thickness = 2
-	                    StrokeW.Color = Color3.new(1, 1, 1)
-
-	                    local SVCursorBlack = Instance.new("Frame")
-	                    SVCursorBlack.Size = UDim2.fromOffset(10, 10)
-	                    SVCursorBlack.Position = UDim2.fromScale(0.5, 0.5)
-	                    SVCursorBlack.AnchorPoint = Vector2.new(0.5, 0.5)
-	                    SVCursorBlack.BackgroundTransparency = 1
-	                    SVCursorBlack.ZIndex = 102
-	                    local UICornerB = Instance.new("UICorner", SVCursorBlack)
-	                    UICornerB.CornerRadius = UDim.new(1, 0)
-	                    local StrokeB = Instance.new("UIStroke", SVCursorBlack)
-	                    StrokeB.Thickness = 1
-	                    StrokeB.Color = Color3.new(0, 0, 0)
-	                    SVCursorBlack.Parent = SVCursor
-
-	                    SVCursor.Parent = SVMap
-
-	                    local HueBar = Instance.new("TextButton")
-	                    HueBar.Name = "HueBar"
-	                    HueBar.Size = UDim2.new(0, 14, 1, -120)
-	                    HueBar.Position = UDim2.new(1, -18, 0, 26)
-	                    HueBar.BackgroundColor3 = Color3.new(1, 1, 1)
-	                    HueBar.AutoButtonColor = false
-	                    HueBar.Text = ""
-	                    HueBar.ZIndex = 101
-	                    HueBar.Parent = Popup
-
-	                    local HueGrad = Instance.new("UIGradient", HueBar)
-	                    HueGrad.Rotation = 90
-	                    HueGrad.Color = ColorSequence.new({
-	                        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-	                        ColorSequenceKeypoint.new(0.167, Color3.fromRGB(255, 255, 0)),
-	                        ColorSequenceKeypoint.new(0.333, Color3.fromRGB(0, 255, 0)),
-	                        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-	                        ColorSequenceKeypoint.new(0.667, Color3.fromRGB(0, 0, 255)),
-	                        ColorSequenceKeypoint.new(0.833, Color3.fromRGB(255, 0, 255)),
-	                        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-	                    })
-
-	                    local HueCursor = Instance.new("Frame")
-	                    HueCursor.Size = UDim2.new(1, 4, 0, 8)
-	                    HueCursor.Position = UDim2.new(0, -2, 0, 0)
-	                    HueCursor.AnchorPoint = Vector2.new(0, 0.5)
-	                    HueCursor.BackgroundTransparency = 1
-	                    HueCursor.ZIndex = 102
-	                    HueCursor.Parent = HueBar
-
-	                    local function makeTriangleWithShadow(parent, rot, pos, anchor)
-	                        local shadow = Instance.new("ImageLabel")
-	                        shadow.Size = UDim2.fromOffset(8, 8)
-	                        shadow.Position = pos + UDim2.fromOffset(1, 1)
-	                        shadow.AnchorPoint = anchor
-	                        shadow.BackgroundTransparency = 1
-	                        shadow.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
-	                        shadow.ImageColor3 = Color3.new(0, 0, 0)
-	                        shadow.Rotation = rot
-	                        shadow.ZIndex = 102
-	                        shadow.Parent = parent
-
-	                        local img = Instance.new("ImageLabel")
-	                        img.Size = UDim2.fromOffset(8, 8)
-	                        img.Position = pos
-	                        img.AnchorPoint = anchor
-	                        img.BackgroundTransparency = 1
-	                        img.Image = widgets.ICONS.RIGHT_POINTING_TRIANGLE
-	                        img.ImageColor3 = Color3.new(1, 1, 1)
-	                        img.Rotation = rot
-	                        img.ZIndex = 103
-	                        img.Parent = parent
-	                    end
-
-	                    makeTriangleWithShadow(HueCursor, 0, UDim2.new(0, 2, 0.5, 0), Vector2.new(1, 0.5))
-	                    makeTriangleWithShadow(HueCursor, 180, UDim2.new(1, -2, 0.5, 0), Vector2.new(0, 0.5))
-	                    
-	                    local InputsContainer = Instance.new("Frame")
-	                    InputsContainer.Size = UDim2.new(1, -8, 0, 80)
-	                    InputsContainer.AnchorPoint = Vector2.new(0, 1)
-	                    InputsContainer.Position = UDim2.new(0, 4, 1, -12)
-	                    InputsContainer.BackgroundTransparency = 1
-	                    InputsContainer.ZIndex = 101
-	                    InputsContainer.Parent = Popup
-
-	                    local function createMiniInput(name, pos, size)
-	                        local frame = Instance.new("Frame")
-	                        frame.Size = size
-	                        frame.Position = pos
-	                        frame.BackgroundColor3 = Iris._config.FrameBgColor
-	                        frame.BorderSizePixel = 0
-	                        frame.ZIndex = 101
-	                        frame.Parent = InputsContainer
-	                        widgets.applyFrameStyle(frame, true)
-
-	                        local label = Instance.new("TextLabel")
-	                        label.Size = UDim2.new(0.3, 0, 1, 0)
-	                        label.BackgroundTransparency = 1
-	                        label.Text = name .. ":"
-	                        label.TextColor3 = Iris._config.TextColor
-	                        label.TextSize = Iris._config.TextSize
-	                        label.FontFace = Iris._config.TextFont
-	                        label.ZIndex = 102
-	                        label.Parent = frame
-
-	                        local box = Instance.new("TextBox")
-	                        box.Size = UDim2.new(0.7, -4, 1, 0)
-	                        box.Position = UDim2.new(0.3, 4, 0, 0)
-	                        box.BackgroundTransparency = 1
-	                        box.TextColor3 = Iris._config.TextColor
-	                        box.TextXAlignment = Enum.TextXAlignment.Left
-	                        box.TextSize = Iris._config.TextSize
-	                        box.FontFace = Iris._config.TextFont
-	                        box.ClearTextOnFocus = false
-	                        box.ZIndex = 102
-	                        box.Parent = frame
-
-	                        return box
-	                    end
-
-	                    local boxR = createMiniInput("R", UDim2.new(0, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
-	                    local boxG = createMiniInput("G", UDim2.new(0.34, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
-	                    local boxB = createMiniInput("B", UDim2.new(0.68, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
-
-	                    local boxH = createMiniInput("H", UDim2.new(0, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
-	                    local boxS = createMiniInput("S", UDim2.new(0.34, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
-	                    local boxV = createMiniInput("V", UDim2.new(0.68, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
-
-	                    local boxHex = createMiniInput("#", UDim2.new(0, 0, 0, 52), UDim2.new(1, 0, 0, 22))
-	                    boxHex.Parent.TextLabel.Text = "#"
-	                    boxHex.Parent.TextLabel.Size = UDim2.new(0, 20, 1, 0)
-	                    boxHex.Position = UDim2.new(0, 24, 0, 0)
-	                    boxHex.Size = UDim2.new(1, -28, 1, 0)
-
-	                    boxR.FocusLost:Connect(function()
-	                        local val = tonumber(boxR.Text)
-	                        if val then thisWidget.state.color:set(Color3.new(math.clamp(val,0,255)/255, thisWidget.state.color.value.G, thisWidget.state.color.value.B)) end
-	                    end)
-	                    boxG.FocusLost:Connect(function()
-	                        local val = tonumber(boxG.Text)
-	                        if val then thisWidget.state.color:set(Color3.new(thisWidget.state.color.value.R, math.clamp(val,0,255)/255, thisWidget.state.color.value.B)) end
-	                    end)
-	                    boxB.FocusLost:Connect(function()
-	                        local val = tonumber(boxB.Text)
-	                        if val then thisWidget.state.color:set(Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, math.clamp(val,0,255)/255)) end
-	                    end)
-	                    boxH.FocusLost:Connect(function()
-	                        local val = tonumber(boxH.Text)
-	                        if val then
-	                            thisWidget.state.hue:set(math.clamp(val,0,360)/360)
-	                            local _, s, v = thisWidget.state.color.value:ToHSV()
-	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, s, v))
-	                        end
-	                    end)
-	                    boxS.FocusLost:Connect(function()
-	                        local val = tonumber(boxS.Text)
-	                        if val then
-	                            local _, _, v = thisWidget.state.color.value:ToHSV()
-	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, math.clamp(val,0,100)/100, v))
-	                        end
-	                    end)
-	                    boxV.FocusLost:Connect(function()
-	                        local val = tonumber(boxV.Text)
-	                        if val then
-	                            local _, s, _ = thisWidget.state.color.value:ToHSV()
-	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, s, math.clamp(val,0,100)/100))
-	                        end
-	                    end)
-	                    boxHex.FocusLost:Connect(function()
-	                        local ok, c = pcall(function() return Color3.fromHex(boxHex.Text) end)
-	                        if ok then thisWidget.state.color:set(c) end
-	                    end)
-
-	                    thisWidget.modalBg = ModalBg
-	                    thisWidget.popupFrame = Popup
-	                    thisWidget.titleText = Title
-	                    thisWidget.svMap = SVMap
-	                    thisWidget.hueBar = HueBar
-	                    thisWidget.svCursor = SVCursor
-	                    thisWidget.hueCursor = HueCursor
-	                    thisWidget.boxR = boxR
-	                    thisWidget.boxG = boxG
-	                    thisWidget.boxB = boxB
-	                    thisWidget.boxH = boxH
-	                    thisWidget.boxS = boxS
-	                    thisWidget.boxV = boxV
-	                    thisWidget.boxHex = boxHex
-
-	                    thisWidget.isDraggingSV = false
-	                    thisWidget.isDraggingHue = false
-	                    thisWidget.isResizing = false
-	                    thisWidget.isMoving = false
-	                    thisWidget.dragStartOffset = Vector2.new()
-
-	                    local function updateColorFromInput(inputObj)
-	                        if thisWidget.isDraggingSV then
-	                            local pos = inputObj.Position
-	                            local relX = math.clamp((pos.X - SVMap.AbsolutePosition.X) / SVMap.AbsoluteSize.X, 0, 1)
-	                            local relY = math.clamp((pos.Y - SVMap.AbsolutePosition.Y) / SVMap.AbsoluteSize.Y, 0, 1)
-	                            local h = thisWidget.state.hue.value
-	                            local newColor = Color3.fromHSV(h, relX, 1 - relY)
-	                            thisWidget.state.color:set(newColor)
-	                        elseif thisWidget.isDraggingHue then
-	                            local pos = inputObj.Position
-	                            local relY = math.clamp((pos.Y - HueBar.AbsolutePosition.Y) / HueBar.AbsoluteSize.Y, 0, 1)
-	                            thisWidget.state.hue:set(1 - relY)
-	                            local _, s, v = thisWidget.state.color.value:ToHSV()
-	                            thisWidget.state.color:set(Color3.fromHSV(1 - relY, s, v))
-	                        end
-	                    end
-
-	                    TitleBar.InputBegan:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            thisWidget.isMoving = true
-	                            thisWidget.dragStartOffset = Vector2.new(inputObj.Position.X - Popup.AbsolutePosition.X, inputObj.Position.Y - Popup.AbsolutePosition.Y)
-	                        end
-	                    end)
-	                    ResizeGrip.InputBegan:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            thisWidget.isResizing = true
-	                        end
-	                    end)
-	                    SVMap.InputBegan:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            thisWidget.isDraggingSV = true
-	                            updateColorFromInput(inputObj)
-	                        end
-	                    end)
-	                    HueBar.InputBegan:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            thisWidget.isDraggingHue = true
-	                            updateColorFromInput(inputObj)
-	                        end
-	                    end)
-	                    widgets.UserInputService.InputEnded:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            thisWidget.isDraggingSV = false
-	                            thisWidget.isDraggingHue = false
-	                            thisWidget.isResizing = false
-	                            thisWidget.isMoving = false
-	                        end
-	                    end)
-	                    widgets.UserInputService.InputChanged:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseMovement then
-	                            if thisWidget.isMoving then
-	                                Popup.Position = UDim2.fromOffset(inputObj.Position.X - thisWidget.dragStartOffset.X, inputObj.Position.Y - thisWidget.dragStartOffset.Y)
-	                            elseif thisWidget.isResizing then
-	                                local newW = math.max(220, inputObj.Position.X - Popup.AbsolutePosition.X + 5)
-	                                local newH = math.max(280, inputObj.Position.Y - Popup.AbsolutePosition.Y + 5)
-	                                Popup.Size = UDim2.fromOffset(newW, newH)
-	                            elseif thisWidget.isDraggingSV or thisWidget.isDraggingHue then
-	                                updateColorFromInput(inputObj)
-	                            end
-	                        end
-	                    end)
-
-	                    return Drag
-	                end,
-	                Update = function(thisWidget: Types.InputColor4)
-	                    local Input = thisWidget.Instance :: GuiObject
-	                    local TextLabel: TextLabel = Input.TextLabel
-	                    TextLabel.Text = thisWidget.arguments.Text or `Drag {dataType}`
-
-	                    if thisWidget.arguments.Format and typeof(thisWidget.arguments.Format) ~= "table" then
-	                        thisWidget.arguments.Format = { thisWidget.arguments.Format }
-	                    elseif not thisWidget.arguments.Format then
-	                        if thisWidget.arguments.UseFloats then
-	                            thisWidget.arguments.Format = { "%.3f" }
-	                        else
-	                            thisWidget.arguments.Format = { "%d" }
-	                        end
-
-	                        thisWidget.arguments.Prefix = defaultPrefx[dataType .. if thisWidget.arguments.UseHSV then "_HSV" else "_RGB"]
-	                    end
-
-	                    thisWidget.arguments.Min = { 0, 0, 0, 0 }
-	                    thisWidget.arguments.Max = { 1, 1, 1, 1 }
-	                    thisWidget.arguments.Increment = { 0.001, 0.001, 0.001, 0.001 }
-
-	                    -- since the state values have changed display, we call an update. The check is because state is not
-	                    -- initialised on creation, so it would error otherwise.
-	                    if thisWidget.state then
-	                        thisWidget.state.color.lastChangeTick = Iris._cycleTick
-	                        if dataType == "Color4" then
-	                            thisWidget.state.transparency.lastChangeTick = Iris._cycleTick
-	                        end
-	                        Iris._widgets[thisWidget.type].UpdateState(thisWidget)
-	                    end
-	                end,
-	                UpdateState = function(thisWidget: Types.InputColor4)
-	                    if input.UpdateState then input.UpdateState(thisWidget) end
-	                    
-	                    if thisWidget.state.isPickerOpen and thisWidget.state.isPickerOpen.value then
-	                        -- Check visibility of parent hierarchy
-	                        local isVisible = true
-	                        local current = thisWidget.Instance
-	                        while current and current:IsA("GuiObject") do
-	                            if not current.Visible then isVisible = false break end
-	                            current = current.Parent
-	                        end
-	                        local screenGui = thisWidget.Instance:FindFirstAncestorOfClass("ScreenGui")
-	                        if screenGui and not screenGui.Enabled then isVisible = false end
-
-	                        if not thisWidget.popupFrame.Visible and isVisible then
-	                            thisWidget.popupFrame.Visible = true
-	                            thisWidget.modalBg.Visible = true
-	                            local cb = thisWidget.Instance:FindFirstChild("ColorBox")
-	                            if cb then
-	                                thisWidget.popupFrame.Position = UDim2.fromOffset(cb.AbsolutePosition.X, cb.AbsolutePosition.Y + cb.AbsoluteSize.Y + 2)
-	                            end
-	                        elseif not isVisible then
-	                            thisWidget.popupFrame.Visible = false
-	                            thisWidget.modalBg.Visible = false
-	                        end
-	                        thisWidget.titleText.Text = thisWidget.arguments.Text or "Color picker"
-	                        
-	                        local h, s, v = thisWidget.state.color.value:ToHSV()
-	                        if not thisWidget.isDraggingHue and not thisWidget.isDraggingSV then
-	                            thisWidget.state.hue:set(h)
-	                        end
-	                        thisWidget.svMap.BackgroundColor3 = Color3.fromHSV(thisWidget.state.hue.value, 1, 1)
-	                        thisWidget.svCursor.Position = UDim2.fromScale(s, 1 - v)
-	                        thisWidget.hueCursor.Position = UDim2.new(0, -2, 1 - thisWidget.state.hue.value, 0)
-	                        
-	                        if not thisWidget.boxR:IsFocused() then thisWidget.boxR.Text = tostring(math.floor(thisWidget.state.color.value.R * 255)) end
-	                        if not thisWidget.boxG:IsFocused() then thisWidget.boxG.Text = tostring(math.floor(thisWidget.state.color.value.G * 255)) end
-	                        if not thisWidget.boxB:IsFocused() then thisWidget.boxB.Text = tostring(math.floor(thisWidget.state.color.value.B * 255)) end
-	                        
-	                        if not thisWidget.boxH:IsFocused() then thisWidget.boxH.Text = tostring(math.floor(thisWidget.state.hue.value * 360)) end
-	                        if not thisWidget.boxS:IsFocused() then thisWidget.boxS.Text = tostring(math.floor(s * 100)) end
-	                        if not thisWidget.boxV:IsFocused() then thisWidget.boxV.Text = tostring(math.floor(v * 100)) end
-	                        
-	                        if not thisWidget.boxHex:IsFocused() then thisWidget.boxHex.Text = thisWidget.state.color.value:ToHex() end
-	                    else
-	                        if thisWidget.popupFrame then 
-	                            thisWidget.popupFrame.Visible = false
-	                            thisWidget.modalBg.Visible = false
-	                        end
-	                    end
-	                end,
-	                GenerateState = function(thisWidget: Types.InputColor4)
-	                    if thisWidget.state.color == nil then
-	                        thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
-	                    end
-	                    if dataType == "Color4" then
-	                        if thisWidget.state.transparency == nil then
-	                            thisWidget.state.transparency = Iris._widgetState(thisWidget, "transparency", defaultValues[2])
-	                        end
-	                    end
-	                    if thisWidget.state.editingText == nil then
-	                        thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
-	                    end
-	                    if thisWidget.state.isPickerOpen == nil then
-	                        thisWidget.state.isPickerOpen = Iris._widgetState(thisWidget, "isPickerOpen", false)
-	                    end
-	                    if thisWidget.state.hue == nil then
-	                        local h, _, _ = thisWidget.state.color.value:ToHSV()
-	                        thisWidget.state.hue = Iris._widgetState(thisWidget, "hue", h)
-	                    end
-	                end,
-	                Discard = function(thisWidget: Types.InputColor4)
-	                    if thisWidget.popupFrame then thisWidget.popupFrame:Destroy() end
-	                    if thisWidget.modalBg then thisWidget.modalBg:Destroy() end
-	                    if input.Discard then input.Discard(thisWidget) else thisWidget.Instance:Destroy() widgets.discardState(thisWidget) end
-	                end,
-	            })
-	        end
+                    if thisWidget.state then
+                        thisWidget.state.color.lastChangeTick = Iris._cycleTick
+                        if dataType == "Color4" then
+                            thisWidget.state.transparency.lastChangeTick = Iris._cycleTick
+                        end
+                        Iris._widgets[thisWidget.type].UpdateState(thisWidget)
+                    end
+                end,
+                GenerateState = function(thisWidget: Types.InputColor4)
+                    if thisWidget.state.color == nil then
+                        thisWidget.state.color = Iris._widgetState(thisWidget, "color", defaultValues[1])
+                    end
+                    if dataType == "Color4" then
+                        if thisWidget.state.transparency == nil then
+                            thisWidget.state.transparency = Iris._widgetState(thisWidget, "transparency", defaultValues[2])
+                        end
+                    end
+                    if thisWidget.state.editingText == nil then
+                        thisWidget.state.editingText = Iris._widgetState(thisWidget, "editingText", false)
+                    end
+                end,
+            })
+        end
 	    end
 
 	    --[[
