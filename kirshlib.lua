@@ -2327,6 +2327,7 @@ __bundle_register("API", function(require, _LOADED, __bundle_register, __bundle_
 	        ```
 	    ]=]
 	    Iris.SmallButton = wrapper("SmallButton")
+	    Iris.Hotkey = wrapper("Hotkey")
 
 	    --[=[
 	        @within Basic
@@ -10087,6 +10088,105 @@ __bundle_register("widgets/Button", function(require, _LOADED, __bundle_register
 	            end,
 	        } :: Types.WidgetClass)
 	    )
+
+	    local activeHotkeyWidget = nil
+	    game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
+	        if activeHotkeyWidget and input.UserInputType == Enum.UserInputType.Keyboard then
+	            if input.KeyCode == Enum.KeyCode.Escape then
+	                activeHotkeyWidget.state.key:set(Enum.KeyCode.Unknown)
+	            else
+	                activeHotkeyWidget.state.key:set(input.KeyCode)
+	            end
+	            activeHotkeyWidget.lastChangeTick = Iris._cycleTick
+	            activeHotkeyWidget = nil
+	        end
+	    end)
+
+	    Iris.WidgetConstructor("Hotkey", {
+	        hasState = true,
+	        hasChildren = false,
+	        Args = {
+	            ["Text"] = 1,
+	        },
+	        Events = {
+	            ["changed"] = widgets.EVENTS.change(function(thisWidget)
+	                return thisWidget.state.key.value
+	            end),
+	        },
+	        GenerateState = function(thisWidget)
+	            if thisWidget.state.key == nil then
+	                thisWidget.state.key = Iris._widgetState(thisWidget, "key", Enum.KeyCode.Unknown)
+	            end
+	        end,
+	        UpdateState = function(thisWidget)
+	            local Button = thisWidget.Instance.Button
+	            local key = thisWidget.state.key.value
+	            if activeHotkeyWidget == thisWidget then
+	                Button.Text = "..."
+	            elseif key == Enum.KeyCode.Unknown then
+	                Button.Text = "None"
+	            else
+	                Button.Text = key.Name
+	            end
+	        end,
+	        Generate = function(thisWidget)
+	            local Container = Instance.new("Frame")
+	            Container.Name = "Iris_Hotkey"
+	            Container.BackgroundTransparency = 1
+	            Container.AutomaticSize = Enum.AutomaticSize.XY
+	            Container.Size = UDim2.fromOffset(0, 0)
+	            widgets.UIListLayout(Container, Enum.FillDirection.Horizontal, UDim.new(0, Iris._config.ItemInnerSpacing))
+
+	            local Button = Instance.new("TextButton")
+	            Button.Name = "Button"
+	            Button.AutomaticSize = Enum.AutomaticSize.Y
+	            Button.Size = UDim2.fromOffset(60, 0)
+	            Button.BackgroundColor3 = Iris._config.ButtonColor
+	            Button.BackgroundTransparency = Iris._config.ButtonTransparency
+	            Button.AutoButtonColor = false
+	            widgets.applyTextStyle(Button)
+	            Button.TextXAlignment = Enum.TextXAlignment.Center
+	            widgets.applyFrameStyle(Button)
+	            widgets.applyInteractionHighlights("Background", Button, Button, {
+	                Color = Iris._config.ButtonColor,
+	                Transparency = Iris._config.ButtonTransparency,
+	                HoveredColor = Iris._config.ButtonHoveredColor,
+	                HoveredTransparency = Iris._config.ButtonHoveredTransparency,
+	                ActiveColor = Iris._config.ButtonActiveColor,
+	                ActiveTransparency = Iris._config.ButtonActiveTransparency,
+	            })
+	            Button.Parent = Container
+
+	            local Label = Instance.new("TextLabel")
+	            Label.Name = "Label"
+	            Label.BackgroundTransparency = 1
+	            Label.AutomaticSize = Enum.AutomaticSize.XY
+	            Label.Size = UDim2.fromOffset(0, 0)
+	            widgets.applyTextStyle(Label)
+	            Label.TextXAlignment = Enum.TextXAlignment.Left
+	            Label.Parent = Container
+
+	            Button.MouseButton1Click:Connect(function()
+	                if activeHotkeyWidget then
+	                    activeHotkeyWidget.Instance.Button.Text = activeHotkeyWidget.state.key.value == Enum.KeyCode.Unknown and "None" or activeHotkeyWidget.state.key.value.Name
+	                end
+	                activeHotkeyWidget = thisWidget
+	                Button.Text = "..."
+	            end)
+
+	            return Container
+	        end,
+	        Update = function(thisWidget)
+	            local Label = thisWidget.Instance.Label
+	            Label.Text = thisWidget.arguments.Text or "Hotkey"
+	        end,
+	        Discard = function(thisWidget)
+	            if activeHotkeyWidget == thisWidget then
+	                activeHotkeyWidget = nil
+	            end
+	            thisWidget.Instance:Destroy()
+	        end,
+	    } :: Types.WidgetClass)
 	end
 
 end)
