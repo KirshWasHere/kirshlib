@@ -8270,7 +8270,7 @@ __bundle_register("widgets/Window", function(require, _LOADED, __bundle_register
 	                Window = Instance.new("ScreenGui")
 	                Window.ResetOnSpawn = false
 	                Window.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	                Window.DisplayOrder = thisWidget.arguments.AlwaysOnTop and 9999 or Iris._config.DisplayOrderOffset
+	                Window.DisplayOrder = (thisWidget.arguments and thisWidget.arguments.AlwaysOnTop) and 9999 or Iris._config.DisplayOrderOffset
 	                Window.ScreenInsets = Iris._config.ScreenInsets
 	                Window.IgnoreGuiInset = Iris._config.IgnoreGuiInset
 	            else
@@ -8279,7 +8279,7 @@ __bundle_register("widgets/Window", function(require, _LOADED, __bundle_register
 	                Window.Position = UDim2.fromScale(0.5, 0.5)
 	                Window.Size = UDim2.fromScale(1, 1)
 	                Window.BackgroundTransparency = 1
-	                Window.ZIndex = thisWidget.arguments.AlwaysOnTop and 9999 or Iris._config.DisplayOrderOffset
+	                Window.ZIndex = (thisWidget.arguments and thisWidget.arguments.AlwaysOnTop) and 9999 or Iris._config.DisplayOrderOffset
 	            end
 	            Window.Name = "Iris_Window"
 
