@@ -11747,29 +11747,86 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        end)
 	                    end
 
+	                    local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui")
+
+	                    local ModalBg = Instance.new("TextButton")
+	                    ModalBg.Name = "ColorPickerModalBg"
+	                    ModalBg.Size = UDim2.fromScale(1, 1)
+	                    ModalBg.BackgroundTransparency = 1
+	                    ModalBg.ZIndex = 99
+	                    ModalBg.Text = ""
+	                    ModalBg.Visible = false
+	                    ModalBg.Parent = RootPopupScreenGui
+
+	                    ModalBg.MouseButton1Down:Connect(function()
+	                        thisWidget.state.isPickerOpen:set(false)
+	                    end)
+
 	                    local Popup = Instance.new("Frame")
 	                    Popup.Name = "ColorPickerPopup"
-	                    Popup.Size = UDim2.fromOffset(220, 280)
-	                    Popup.BackgroundColor3 = Iris._config.PopupBgColor
-	                    Popup.BackgroundTransparency = Iris._config.PopupBgTransparency
+	                    Popup.Size = UDim2.fromOffset(240, 320)
+	                    Popup.BackgroundColor3 = Iris._config.WindowBgColor
+	                    Popup.BackgroundTransparency = Iris._config.WindowBgTransparency
 	                    Popup.BorderSizePixel = 0
 	                    Popup.Visible = false
 	                    Popup.ZIndex = 100
+	                    Popup.Active = true
 	                    widgets.UIStroke(Popup, Iris._config.WindowBorderSize, Iris._config.BorderColor, Iris._config.BorderTransparency)
+	                    Popup.Parent = RootPopupScreenGui
+
+	                    local TitleBar = Instance.new("Frame")
+	                    TitleBar.Size = UDim2.new(1, 0, 0, 22)
+	                    TitleBar.BackgroundColor3 = Iris._config.TitleBgColor
+	                    TitleBar.BorderSizePixel = 0
+	                    TitleBar.ZIndex = 101
+	                    TitleBar.Parent = Popup
+
+	                    local Arrow = Instance.new("ImageLabel")
+	                    Arrow.Size = UDim2.fromOffset(12, 12)
+	                    Arrow.Position = UDim2.new(0, 4, 0.5, -6)
+	                    Arrow.BackgroundTransparency = 1
+	                    Arrow.Image = widgets.ICONS.DOWN_POINTING_TRIANGLE
+	                    Arrow.ImageColor3 = Iris._config.TextColor
+	                    Arrow.ZIndex = 102
+	                    Arrow.Parent = TitleBar
+
+	                    local Title = Instance.new("TextLabel")
+	                    Title.Size = UDim2.new(1, -20, 1, 0)
+	                    Title.Position = UDim2.fromOffset(20, 0)
+	                    Title.BackgroundTransparency = 1
+	                    Title.Text = ""
+	                    Title.TextColor3 = Iris._config.TextColor
+	                    Title.TextSize = Iris._config.TextSize
+	                    Title.FontFace = Iris._config.TextFont
+	                    Title.TextXAlignment = Enum.TextXAlignment.Left
+	                    Title.ZIndex = 102
+	                    Title.Parent = TitleBar
+
+	                    local ResizeGrip = Instance.new("ImageButton")
+	                    ResizeGrip.Size = UDim2.fromOffset(10, 10)
+	                    ResizeGrip.AnchorPoint = Vector2.new(1, 1)
+	                    ResizeGrip.Position = UDim2.fromScale(1, 1)
+	                    ResizeGrip.BackgroundTransparency = 1
+	                    ResizeGrip.Image = "rbxassetid://12480608670"
+	                    ResizeGrip.ImageColor3 = Iris._config.TextColor
+	                    ResizeGrip.ZIndex = 102
+	                    ResizeGrip.Parent = Popup
 
 	                    local SVMap = Instance.new("TextButton")
 	                    SVMap.Name = "SVMap"
-	                    SVMap.Size = UDim2.new(1, -26, 1, -94)
-	                    SVMap.Position = UDim2.fromOffset(4, 4)
+	                    SVMap.Size = UDim2.new(1, -26, 1, -120)
+	                    SVMap.Position = UDim2.fromOffset(4, 26)
 	                    SVMap.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 	                    SVMap.AutoButtonColor = false
 	                    SVMap.Text = ""
+	                    SVMap.ZIndex = 101
 	                    SVMap.Parent = Popup
 
 	                    local WhiteGrad = Instance.new("Frame")
 	                    WhiteGrad.Size = UDim2.fromScale(1, 1)
 	                    WhiteGrad.BackgroundColor3 = Color3.new(1, 1, 1)
 	                    WhiteGrad.BorderSizePixel = 0
+	                    WhiteGrad.ZIndex = 101
 	                    local UIGradW = Instance.new("UIGradient", WhiteGrad)
 	                    UIGradW.Transparency = NumberSequence.new(0, 1)
 	                    WhiteGrad.Parent = SVMap
@@ -11778,25 +11835,30 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    BlackGrad.Size = UDim2.fromScale(1, 1)
 	                    BlackGrad.BackgroundColor3 = Color3.new(0, 0, 0)
 	                    BlackGrad.BorderSizePixel = 0
+	                    BlackGrad.ZIndex = 101
 	                    local UIGradB = Instance.new("UIGradient", BlackGrad)
 	                    UIGradB.Transparency = NumberSequence.new(1, 0)
 	                    UIGradB.Rotation = 90
 	                    BlackGrad.Parent = SVMap
 
 	                    local SVCursor = Instance.new("Frame")
-	                    SVCursor.Size = UDim2.fromOffset(6, 6)
+	                    SVCursor.Size = UDim2.fromOffset(8, 8)
 	                    SVCursor.AnchorPoint = Vector2.new(0.5, 0.5)
 	                    SVCursor.BackgroundColor3 = Color3.new(1, 1, 1)
+	                    SVCursor.ZIndex = 102
+	                    local UICorner = Instance.new("UICorner", SVCursor)
+	                    UICorner.CornerRadius = UDim.new(1, 0)
 	                    widgets.UIStroke(SVCursor, 1, Color3.new(0,0,0), 0)
 	                    SVCursor.Parent = SVMap
 
 	                    local HueBar = Instance.new("TextButton")
 	                    HueBar.Name = "HueBar"
-	                    HueBar.Size = UDim2.new(0, 14, 1, -94)
-	                    HueBar.Position = UDim2.new(1, -18, 0, 4)
+	                    HueBar.Size = UDim2.new(0, 14, 1, -120)
+	                    HueBar.Position = UDim2.new(1, -18, 0, 26)
 	                    HueBar.BackgroundColor3 = Color3.new(1, 1, 1)
 	                    HueBar.AutoButtonColor = false
 	                    HueBar.Text = ""
+	                    HueBar.ZIndex = 101
 	                    HueBar.Parent = Popup
 
 	                    local HueGrad = Instance.new("UIGradient", HueBar)
@@ -11816,13 +11878,16 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    HueCursor.Position = UDim2.new(0, -2, 0, 0)
 	                    HueCursor.AnchorPoint = Vector2.new(0, 0.5)
 	                    HueCursor.BackgroundColor3 = Color3.new(1, 1, 1)
+	                    HueCursor.ZIndex = 102
 	                    widgets.UIStroke(HueCursor, 1, Color3.new(0,0,0), 0)
 	                    HueCursor.Parent = HueBar
 	                    
 	                    local InputsContainer = Instance.new("Frame")
 	                    InputsContainer.Size = UDim2.new(1, -8, 0, 80)
-	                    InputsContainer.Position = UDim2.new(0, 4, 1, -84)
+	                    InputsContainer.AnchorPoint = Vector2.new(0, 1)
+	                    InputsContainer.Position = UDim2.new(0, 4, 1, -12)
 	                    InputsContainer.BackgroundTransparency = 1
+	                    InputsContainer.ZIndex = 101
 	                    InputsContainer.Parent = Popup
 
 	                    local function createMiniInput(name, pos, size)
@@ -11831,6 +11896,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        frame.Position = pos
 	                        frame.BackgroundColor3 = Iris._config.FrameBgColor
 	                        frame.BorderSizePixel = 0
+	                        frame.ZIndex = 101
 	                        frame.Parent = InputsContainer
 	                        widgets.applyFrameStyle(frame, true)
 
@@ -11841,6 +11907,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        label.TextColor3 = Iris._config.TextColor
 	                        label.TextSize = Iris._config.TextSize
 	                        label.FontFace = Iris._config.TextFont
+	                        label.ZIndex = 102
 	                        label.Parent = frame
 
 	                        local box = Instance.new("TextBox")
@@ -11852,6 +11919,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        box.TextSize = Iris._config.TextSize
 	                        box.FontFace = Iris._config.TextFont
 	                        box.ClearTextOnFocus = false
+	                        box.ZIndex = 102
 	                        box.Parent = frame
 
 	                        return box
@@ -11910,9 +11978,9 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        if ok then thisWidget.state.color:set(c) end
 	                    end)
 
-	                    local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui")
-	                    Popup.Parent = RootPopupScreenGui
+	                    thisWidget.modalBg = ModalBg
 	                    thisWidget.popupFrame = Popup
+	                    thisWidget.titleText = Title
 	                    thisWidget.svMap = SVMap
 	                    thisWidget.hueBar = HueBar
 	                    thisWidget.svCursor = SVCursor
@@ -11927,6 +11995,9 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 
 	                    thisWidget.isDraggingSV = false
 	                    thisWidget.isDraggingHue = false
+	                    thisWidget.isResizing = false
+	                    thisWidget.isMoving = false
+	                    thisWidget.dragStartOffset = Vector2.new()
 
 	                    local function updateColorFromInput(inputObj)
 	                        if thisWidget.isDraggingSV then
@@ -11945,6 +12016,17 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        end
 	                    end
 
+	                    TitleBar.InputBegan:Connect(function(inputObj)
+	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
+	                            thisWidget.isMoving = true
+	                            thisWidget.dragStartOffset = Vector2.new(inputObj.Position.X - Popup.AbsolutePosition.X, inputObj.Position.Y - Popup.AbsolutePosition.Y)
+	                        end
+	                    end)
+	                    ResizeGrip.InputBegan:Connect(function(inputObj)
+	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
+	                            thisWidget.isResizing = true
+	                        end
+	                    end)
 	                    SVMap.InputBegan:Connect(function(inputObj)
 	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
 	                            thisWidget.isDraggingSV = true
@@ -11961,25 +12043,20 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
 	                            thisWidget.isDraggingSV = false
 	                            thisWidget.isDraggingHue = false
+	                            thisWidget.isResizing = false
+	                            thisWidget.isMoving = false
 	                        end
 	                    end)
 	                    widgets.UserInputService.InputChanged:Connect(function(inputObj)
 	                        if inputObj.UserInputType == Enum.UserInputType.MouseMovement then
-	                            if thisWidget.isDraggingSV or thisWidget.isDraggingHue then
+	                            if thisWidget.isMoving then
+	                                Popup.Position = UDim2.fromOffset(inputObj.Position.X - thisWidget.dragStartOffset.X, inputObj.Position.Y - thisWidget.dragStartOffset.Y)
+	                            elseif thisWidget.isResizing then
+	                                local newW = math.max(220, inputObj.Position.X - Popup.AbsolutePosition.X + 5)
+	                                local newH = math.max(280, inputObj.Position.Y - Popup.AbsolutePosition.Y + 5)
+	                                Popup.Size = UDim2.fromOffset(newW, newH)
+	                            elseif thisWidget.isDraggingSV or thisWidget.isDraggingHue then
 	                                updateColorFromInput(inputObj)
-	                            end
-	                        end
-	                    end)
-	                    widgets.UserInputService.InputBegan:Connect(function(inputObj)
-	                        if inputObj.UserInputType == Enum.UserInputType.MouseButton1 then
-	                            if thisWidget.state and thisWidget.state.isPickerOpen and thisWidget.state.isPickerOpen.value then
-	                                local pos = inputObj.Position
-	                                local inPopup = pos.X >= Popup.AbsolutePosition.X and pos.X <= Popup.AbsolutePosition.X + Popup.AbsoluteSize.X and pos.Y >= Popup.AbsolutePosition.Y and pos.Y <= Popup.AbsolutePosition.Y + Popup.AbsoluteSize.Y
-	                                local cb = ColorBox
-	                                local inBox = cb and pos.X >= cb.AbsolutePosition.X and pos.X <= cb.AbsolutePosition.X + cb.AbsoluteSize.X and pos.Y >= cb.AbsolutePosition.Y and pos.Y <= cb.AbsolutePosition.Y + cb.AbsoluteSize.Y
-	                                if not inPopup and not inBox then
-	                                    thisWidget.state.isPickerOpen:set(false)
-	                                end
 	                            end
 	                        end
 	                    end)
@@ -12021,11 +12098,16 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    if input.UpdateState then input.UpdateState(thisWidget) end
 	                    
 	                    if thisWidget.state.isPickerOpen and thisWidget.state.isPickerOpen.value then
-	                        thisWidget.popupFrame.Visible = true
-	                        local cb = thisWidget.Instance:FindFirstChild("ColorBox")
-	                        if cb then
-	                            thisWidget.popupFrame.Position = UDim2.fromOffset(cb.AbsolutePosition.X, cb.AbsolutePosition.Y + cb.AbsoluteSize.Y + 2)
+	                        if not thisWidget.popupFrame.Visible then
+	                            thisWidget.popupFrame.Visible = true
+	                            thisWidget.modalBg.Visible = true
+	                            local cb = thisWidget.Instance:FindFirstChild("ColorBox")
+	                            if cb then
+	                                thisWidget.popupFrame.Position = UDim2.fromOffset(cb.AbsolutePosition.X, cb.AbsolutePosition.Y + cb.AbsoluteSize.Y + 2)
+	                            end
 	                        end
+	                        thisWidget.titleText.Text = thisWidget.arguments.Text or "Color picker"
+	                        
 	                        local h, s, v = thisWidget.state.color.value:ToHSV()
 	                        if not thisWidget.isDraggingHue and not thisWidget.isDraggingSV then
 	                            thisWidget.state.hue:set(h)
@@ -12044,7 +12126,10 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        
 	                        if not thisWidget.boxHex:IsFocused() then thisWidget.boxHex.Text = thisWidget.state.color.value:ToHex() end
 	                    else
-	                        if thisWidget.popupFrame then thisWidget.popupFrame.Visible = false end
+	                        if thisWidget.popupFrame then 
+	                            thisWidget.popupFrame.Visible = false
+	                            thisWidget.modalBg.Visible = false
+	                        end
 	                    end
 	                end,
 	                GenerateState = function(thisWidget: Types.InputColor4)
