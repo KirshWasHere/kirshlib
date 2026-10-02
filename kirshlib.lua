@@ -11735,6 +11735,11 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                Generate = function(thisWidget: Types.InputColor4)
 	                    local Drag = input.Generate(thisWidget)
 	                    
+	                    for i = 1, 4 do
+	                        local field = Drag:FindFirstChild("SliderField" .. i) or Drag:FindFirstChild("DragField" .. i)
+	                        if field then field.Visible = false end
+	                    end
+
 	                    local ColorBox = Drag:FindFirstChild("ColorBox")
 	                    if ColorBox then
 	                        widgets.applyButtonClick(ColorBox, function()
@@ -11744,7 +11749,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 
 	                    local Popup = Instance.new("Frame")
 	                    Popup.Name = "ColorPickerPopup"
-	                    Popup.Size = UDim2.fromOffset(200, 180)
+	                    Popup.Size = UDim2.fromOffset(220, 280)
 	                    Popup.BackgroundColor3 = Iris._config.PopupBgColor
 	                    Popup.BackgroundTransparency = Iris._config.PopupBgTransparency
 	                    Popup.BorderSizePixel = 0
@@ -11754,7 +11759,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 
 	                    local SVMap = Instance.new("TextButton")
 	                    SVMap.Name = "SVMap"
-	                    SVMap.Size = UDim2.new(1, -26, 1, -8)
+	                    SVMap.Size = UDim2.new(1, -26, 1, -94)
 	                    SVMap.Position = UDim2.fromOffset(4, 4)
 	                    SVMap.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 	                    SVMap.AutoButtonColor = false
@@ -11787,7 +11792,7 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 
 	                    local HueBar = Instance.new("TextButton")
 	                    HueBar.Name = "HueBar"
-	                    HueBar.Size = UDim2.new(0, 14, 1, -8)
+	                    HueBar.Size = UDim2.new(0, 14, 1, -94)
 	                    HueBar.Position = UDim2.new(1, -18, 0, 4)
 	                    HueBar.BackgroundColor3 = Color3.new(1, 1, 1)
 	                    HueBar.AutoButtonColor = false
@@ -11813,6 +11818,97 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    HueCursor.BackgroundColor3 = Color3.new(1, 1, 1)
 	                    widgets.UIStroke(HueCursor, 1, Color3.new(0,0,0), 0)
 	                    HueCursor.Parent = HueBar
+	                    
+	                    local InputsContainer = Instance.new("Frame")
+	                    InputsContainer.Size = UDim2.new(1, -8, 0, 80)
+	                    InputsContainer.Position = UDim2.new(0, 4, 1, -84)
+	                    InputsContainer.BackgroundTransparency = 1
+	                    InputsContainer.Parent = Popup
+
+	                    local function createMiniInput(name, pos, size)
+	                        local frame = Instance.new("Frame")
+	                        frame.Size = size
+	                        frame.Position = pos
+	                        frame.BackgroundColor3 = Iris._config.FrameBgColor
+	                        frame.BorderSizePixel = 0
+	                        frame.Parent = InputsContainer
+	                        widgets.applyFrameStyle(frame, true)
+
+	                        local label = Instance.new("TextLabel")
+	                        label.Size = UDim2.new(0.3, 0, 1, 0)
+	                        label.BackgroundTransparency = 1
+	                        label.Text = name .. ":"
+	                        label.TextColor3 = Iris._config.TextColor
+	                        label.TextSize = Iris._config.TextSize
+	                        label.Font = Iris._config.TextFont.Family
+	                        label.Parent = frame
+
+	                        local box = Instance.new("TextBox")
+	                        box.Size = UDim2.new(0.7, -4, 1, 0)
+	                        box.Position = UDim2.new(0.3, 4, 0, 0)
+	                        box.BackgroundTransparency = 1
+	                        box.TextColor3 = Iris._config.TextColor
+	                        box.TextXAlignment = Enum.TextXAlignment.Left
+	                        box.TextSize = Iris._config.TextSize
+	                        box.Font = Iris._config.TextFont.Family
+	                        box.ClearTextOnFocus = false
+	                        box.Parent = frame
+
+	                        return box
+	                    end
+
+	                    local boxR = createMiniInput("R", UDim2.new(0, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
+	                    local boxG = createMiniInput("G", UDim2.new(0.34, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
+	                    local boxB = createMiniInput("B", UDim2.new(0.68, 0, 0, 0), UDim2.new(0.32, 0, 0, 22))
+
+	                    local boxH = createMiniInput("H", UDim2.new(0, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
+	                    local boxS = createMiniInput("S", UDim2.new(0.34, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
+	                    local boxV = createMiniInput("V", UDim2.new(0.68, 0, 0, 26), UDim2.new(0.32, 0, 0, 22))
+
+	                    local boxHex = createMiniInput("#", UDim2.new(0, 0, 0, 52), UDim2.new(1, 0, 0, 22))
+	                    boxHex.Parent.TextLabel.Text = "#"
+	                    boxHex.Parent.TextLabel.Size = UDim2.new(0, 20, 1, 0)
+	                    boxHex.Position = UDim2.new(0, 24, 0, 0)
+	                    boxHex.Size = UDim2.new(1, -28, 1, 0)
+
+	                    boxR.FocusLost:Connect(function()
+	                        local val = tonumber(boxR.Text)
+	                        if val then thisWidget.state.color:set(Color3.new(math.clamp(val,0,255)/255, thisWidget.state.color.value.G, thisWidget.state.color.value.B)) end
+	                    end)
+	                    boxG.FocusLost:Connect(function()
+	                        local val = tonumber(boxG.Text)
+	                        if val then thisWidget.state.color:set(Color3.new(thisWidget.state.color.value.R, math.clamp(val,0,255)/255, thisWidget.state.color.value.B)) end
+	                    end)
+	                    boxB.FocusLost:Connect(function()
+	                        local val = tonumber(boxB.Text)
+	                        if val then thisWidget.state.color:set(Color3.new(thisWidget.state.color.value.R, thisWidget.state.color.value.G, math.clamp(val,0,255)/255)) end
+	                    end)
+	                    boxH.FocusLost:Connect(function()
+	                        local val = tonumber(boxH.Text)
+	                        if val then
+	                            thisWidget.state.hue:set(math.clamp(val,0,360)/360)
+	                            local _, s, v = thisWidget.state.color.value:ToHSV()
+	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, s, v))
+	                        end
+	                    end)
+	                    boxS.FocusLost:Connect(function()
+	                        local val = tonumber(boxS.Text)
+	                        if val then
+	                            local _, _, v = thisWidget.state.color.value:ToHSV()
+	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, math.clamp(val,0,100)/100, v))
+	                        end
+	                    end)
+	                    boxV.FocusLost:Connect(function()
+	                        local val = tonumber(boxV.Text)
+	                        if val then
+	                            local _, s, _ = thisWidget.state.color.value:ToHSV()
+	                            thisWidget.state.color:set(Color3.fromHSV(thisWidget.state.hue.value, s, math.clamp(val,0,100)/100))
+	                        end
+	                    end)
+	                    boxHex.FocusLost:Connect(function()
+	                        local ok, c = pcall(function() return Color3.fromHex(boxHex.Text) end)
+	                        if ok then thisWidget.state.color:set(c) end
+	                    end)
 
 	                    local RootPopupScreenGui = Iris._rootInstance and Iris._rootInstance:WaitForChild("PopupScreenGui")
 	                    Popup.Parent = RootPopupScreenGui
@@ -11821,6 +11917,13 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                    thisWidget.hueBar = HueBar
 	                    thisWidget.svCursor = SVCursor
 	                    thisWidget.hueCursor = HueCursor
+	                    thisWidget.boxR = boxR
+	                    thisWidget.boxG = boxG
+	                    thisWidget.boxB = boxB
+	                    thisWidget.boxH = boxH
+	                    thisWidget.boxS = boxS
+	                    thisWidget.boxV = boxV
+	                    thisWidget.boxHex = boxHex
 
 	                    thisWidget.isDraggingSV = false
 	                    thisWidget.isDraggingHue = false
@@ -11930,6 +12033,16 @@ __bundle_register("widgets/Input", function(require, _LOADED, __bundle_register,
 	                        thisWidget.svMap.BackgroundColor3 = Color3.fromHSV(thisWidget.state.hue.value, 1, 1)
 	                        thisWidget.svCursor.Position = UDim2.fromScale(s, 1 - v)
 	                        thisWidget.hueCursor.Position = UDim2.new(0, -2, 1 - thisWidget.state.hue.value, 0)
+	                        
+	                        if not thisWidget.boxR:IsFocused() then thisWidget.boxR.Text = tostring(math.floor(thisWidget.state.color.value.R * 255)) end
+	                        if not thisWidget.boxG:IsFocused() then thisWidget.boxG.Text = tostring(math.floor(thisWidget.state.color.value.G * 255)) end
+	                        if not thisWidget.boxB:IsFocused() then thisWidget.boxB.Text = tostring(math.floor(thisWidget.state.color.value.B * 255)) end
+	                        
+	                        if not thisWidget.boxH:IsFocused() then thisWidget.boxH.Text = tostring(math.floor(thisWidget.state.hue.value * 360)) end
+	                        if not thisWidget.boxS:IsFocused() then thisWidget.boxS.Text = tostring(math.floor(s * 100)) end
+	                        if not thisWidget.boxV:IsFocused() then thisWidget.boxV.Text = tostring(math.floor(v * 100)) end
+	                        
+	                        if not thisWidget.boxHex:IsFocused() then thisWidget.boxHex.Text = thisWidget.state.color.value:ToHex() end
 	                    else
 	                        if thisWidget.popupFrame then thisWidget.popupFrame.Visible = false end
 	                    end
